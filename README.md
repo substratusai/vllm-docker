@@ -2,6 +2,24 @@
 vLLM is a fast and easy-to-use library for LLM inference and serving.
 This container image runs the OpenAI API server of vLLM.
 
+Support the project by adding a star! ❤️
+
+Join us on Discord:  
+<a href="https://discord.gg/JeXhcmjZVm">
+<img alt="discord-invite" src="https://dcbadge.vercel.app/api/server/JeXhcmjZVm?style=flat">
+</a>
+
+## Quickstart
+Deploy Mistral 7B Instruct:
+```bash
+docker run -d -p 8080:8080 --gpus=all \
+  -e MODEL=mistralai/Mistral-7B-Instruct-v0.1 \
+  ghcr.io/substratusai/vllm
+
+```
+
+## Configuration Options
+
 The following configuration options are available by using environment
 variables:
 
@@ -19,11 +37,4 @@ The container image automatically detects the number of GPUs and sets
 ## Building
 ```
 docker build -t ghcr.io/substratusai/vllm .
-```
-
-## Running
-```
-docker run -d -p 8080:8080 --gpus=all \
-  -e MODEL=mistralai/Mistral-7B-Instruct-v0.1 \
-  ghcr.io/substratusai/vllm
 ```
