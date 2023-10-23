@@ -1,5 +1,6 @@
 FROM nvidia/cuda:11.8.0-runtime-ubuntu22.04
 ENV PORT 8080
+ENV GPU_MEMORY_UTILIZATION 0.85
 
 RUN --mount=type=cache,target=/var/cache/apt --mount=type=cache,target=/var/lib/apt \
     apt-get update && \

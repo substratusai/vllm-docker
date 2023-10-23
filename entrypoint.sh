@@ -13,6 +13,6 @@ python3 -m vllm.entrypoints.openai.api_server \
     --tensor-parallel-size ${NUM_GPU} \
     --worker-use-ray \
     --host 0.0.0.0 \
-    --port ${PORT} \
-    --model ${MODEL} \
-    --gpu-memory-utilization 0.85
+    --port "${PORT}" \
+    --model "${MODEL}" \
+    --gpu-memory-utilization "${GPU_MEMORY_UTILIZATION}"
