@@ -2,6 +2,8 @@
 vLLM is a fast and easy-to-use library for LLM inference and serving.
 This container image runs the OpenAI API server of vLLM.
 
+Image URL: `ghcr.io/substratusai/vllm`
+
 Support the project by adding a star! ❤️
 
 Join us on Discord:  
