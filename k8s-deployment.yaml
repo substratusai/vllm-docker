@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vllm
+  labels:
+    app: vllm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vllm
+  template:
+    metadata:
+      labels:
+        app: vllm
+    spec:
+      containers:
+      - name: vllm
+        image: ghcr.io/substratusai/vllm:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: MODEL
+          value: "mistralai/Mistral-7B-Instruct-v0.1"
+        resources:
+          limits:
+            nvidia.com/gpu: "1" 
