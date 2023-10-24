@@ -22,6 +22,20 @@ spec:
         env:
         - name: MODEL
           value: "mistralai/Mistral-7B-Instruct-v0.1"
+        volumeMounts:
+        - mountPath: /dev/shm
+          name: dshm
+        readinessProbe:
+          httpGet:
+            path: /docs
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 5
         resources:
           limits:
             nvidia.com/gpu: "1" 
+      volumes:
+      - name: dshm
+        emptyDir:
+          medium: Memory
+          sizeLimit: 1Gi
