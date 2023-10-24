@@ -12,12 +12,17 @@ Join us on Discord:
 </a>
 
 ## Quickstart
-Deploy Mistral 7B Instruct:
+Deploy Mistral 7B Instruct using Docker:
 ```bash
 docker run -d -p 8080:8080 --gpus=all \
   -e MODEL=mistralai/Mistral-7B-Instruct-v0.1 \
   ghcr.io/substratusai/vllm
 
+```
+
+Deploy Mistral 7B Instruct using K8s:
+```
+kubectl apply -f https://raw.githubusercontent.com/substratusai/vllm-docker/main/k8s-deployment.yaml
 ```
 
 ## Configuration Options
