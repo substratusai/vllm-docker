@@ -3,6 +3,7 @@
 set -x
 
 export NUM_GPU=$(gpu-count.py)
+export SERVED_MODEL_NAME=${SERVED_MODEL_NAME:-"${MODEL}"}
 
 if [[ -z "${MODEL}" ]]; then
     echo "Missing required environment variable MODEL"
@@ -15,4 +16,5 @@ python3 -m vllm.entrypoints.openai.api_server \
     --host 0.0.0.0 \
     --port "${PORT}" \
     --model "${MODEL}" \
-    --gpu-memory-utilization "${GPU_MEMORY_UTILIZATION}"
+    --gpu-memory-utilization "${GPU_MEMORY_UTILIZATION}" \
+    --server-model-name "${SERVED_MODEL_NAME}"
