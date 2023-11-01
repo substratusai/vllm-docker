@@ -17,4 +17,4 @@ python3 -m vllm.entrypoints.openai.api_server \
     --port "${PORT}" \
     --model "${MODEL}" \
     --gpu-memory-utilization "${GPU_MEMORY_UTILIZATION}" \
-    --server-model-name "${SERVED_MODEL_NAME}"
+    --served-model-name "${SERVED_MODEL_NAME}"
