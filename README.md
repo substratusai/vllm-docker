@@ -33,6 +33,7 @@ variables:
 | Env Name    | Description |
 | -------- | ------- |
 | MODEL  | REQUIRED, The model ID to serve. This can be in the form of `hf_org/model` or utilize a path to point to a local model. Example value: mistralai/Mistral-7B-Instruct-v0.1    |
+| SERVED_MODEL_NAME  | OPTIONAL, The model name used in the API. If not specified, the model name will be the same as the huggingface name. |
 | GPU_MEMORY_UTILIZATION | OPTIONAL, the max memory allowed to be utilized, default is 0.85     |
 | PORT | OPTIONAL, the port to use for serving, default is 8080     |
 
