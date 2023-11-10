@@ -12,7 +12,12 @@ fi
 
 additional_args=${EXTRA_ARGS:-""}
 if [[ ! -z "${QUANTIZATION}" ]]; then
-    additional_args="${additional_args} -q ${QUANTIZATION}"
+    if [[ -z "${DTYPE}" ]]; then
+        echo "Missing required environment variable DTYPE when QUANTIZATION is set"
+        exit 1
+    else
+        additional_args="${additional_args} -q ${QUANTIZATION} --dtype ${DTYPE}"
+    fi
 fi
 
 python3 -m vllm.entrypoints.openai.api_server \
