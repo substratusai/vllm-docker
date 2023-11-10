@@ -36,6 +36,8 @@ variables:
 | SERVED_MODEL_NAME  | OPTIONAL, The model name used in the API. If not specified, the model name will be the same as the huggingface name. |
 | GPU_MEMORY_UTILIZATION | OPTIONAL, the max memory allowed to be utilized, default is 0.85     |
 | PORT | OPTIONAL, the port to use for serving, default is 8080     |
+| QUANTIZATION | OPTIONAL, the quantization method. Choices: 'awq', 'squeezellm' |
+| EXTRA_ARGS | OPTIONAL, Any additional command line arguments to pass along |
 
 
 The container image automatically detects the number of GPUs and sets

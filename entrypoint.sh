@@ -10,22 +10,9 @@ if [[ -z "${MODEL}" ]]; then
     exit 1
 fi
 
-if ${QUANTIZATION}; then
-    if [[ -z "${DTYPE}" ]]; then
-        echo "Missing required environment variable DTYPE"
-        exit 1
-    else
-        python3 -m vllm.entrypoints.openai.api_server \
-            --tensor-parallel-size ${NUM_GPU} \
-            --worker-use-ray \
-            --host 0.0.0.0 \
-            --port "${PORT}" \
-            --model "${MODEL}" \
-            --gpu-memory-utilization "${GPU_MEMORY_UTILIZATION}" \
-            --served-model-name "${SERVED_MODEL_NAME}" \
-            --quantization "${QUANTIZATION}" \
-            --dtype "${DTYPE}"
-    fi
+additional_args=${EXTRA_ARGS:-""}
+if [[ ! -z "${QUANTIZATION}" ]]; then
+    additional_args="${additional_args} -q ${QUANTIZATION}"
 fi
 
 python3 -m vllm.entrypoints.openai.api_server \
@@ -35,4 +22,4 @@ python3 -m vllm.entrypoints.openai.api_server \
     --port "${PORT}" \
     --model "${MODEL}" \
     --gpu-memory-utilization "${GPU_MEMORY_UTILIZATION}" \
-    --served-model-name "${SERVED_MODEL_NAME}"
+    --served-model-name "${SERVED_MODEL_NAME}" ${additional_args}
