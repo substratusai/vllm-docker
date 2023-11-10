@@ -20,6 +20,14 @@ if [[ ! -z "${QUANTIZATION}" ]]; then
     fi
 fi
 
+if [[ ! -z "${GPU_MEMORY_UTILIZATION}" ]]; then
+    additional_args="${additional_args} --gpu-memory-utilization ${GPU_MEMORY_UTILIZATION}"
+fi
+
+if [[ ! -z "${MAX_MODEL_LEN}" ]]; then
+    additional_args="${additional_args} --max-model-len ${MAX_MODEL_LEN}"
+fi
+
 python3 -m vllm.entrypoints.openai.api_server \
     --tensor-parallel-size ${NUM_GPU} \
     --worker-use-ray \
