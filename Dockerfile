@@ -1,5 +1,5 @@
 FROM nvidia/cuda:12.1.1-runtime-ubuntu22.04
-ARG VERSION=0.2.6
+ARG VERSION=0.2.7
 ENV PORT 8080
 
 RUN --mount=type=cache,target=/var/cache/apt --mount=type=cache,target=/var/lib/apt \
