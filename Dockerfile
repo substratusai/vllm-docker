@@ -12,5 +12,4 @@ RUN python3 -m pip install --no-cache-dir --upgrade pip wheel
 RUN python3 -m pip install --no-cache-dir vllm==${VERSION}
 
 COPY entrypoint.sh /usr/local/bin/
-COPY gpu-count.py /usr/local/bin/
 CMD [ "entrypoint.sh" ]

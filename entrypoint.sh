@@ -2,7 +2,14 @@
 
 set -x
 
-export NUM_GPU=$(gpu-count.py)
+# Check if nvidia-smi is available
+if ! command -v nvidia-smi &> /dev/null
+then
+    echo "nvidia-smi could not be found. Ensure NVIDIA drivers are installed."
+    exit 1
+fi
+
+export NUM_GPU=$(nvidia-smi -L | wc -l)
 export SERVED_MODEL_NAME=${SERVED_MODEL_NAME:-"${MODEL}"}
 
 if [[ -z "${MODEL}" ]]; then
