@@ -48,8 +48,7 @@ Please see the vLLM source code of [arg-utils.py](https://github.com/vllm-projec
 
 
 The container image automatically detects the number of GPUs and sets
-`--tensor-parallel-size` to be equal to number of GPUs available. The
-`gpu-count.py` script is used to detect number of GPUs.
+`--tensor-parallel-size` to be equal to number of GPUs available.
 
 ## Building
 ```
