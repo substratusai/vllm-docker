@@ -5,7 +5,7 @@ ENV PORT 8080
 RUN --mount=type=cache,target=/var/cache/apt --mount=type=cache,target=/var/lib/apt \
     apt-get update && \
     apt-get -y --no-install-recommends install \
-      python3 python3-pip && \
+      python3 python3-pip curl && \
     rm -rf /var/lib/apt/lists/*
 
 RUN python3 -m pip install --no-cache-dir --upgrade pip wheel
