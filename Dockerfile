@@ -8,8 +8,7 @@ RUN --mount=type=cache,target=/var/cache/apt --mount=type=cache,target=/var/lib/
 WORKDIR /usr/src/flash-attention-v2
 
 # Download the wheel or build it if a pre-compiled release doesn't exist
-RUN --mount=type=cache,target=/root/.cache/pip \
-    python3 -m pip install --no-cache-dir --upgrade pip wheel packaging ninja torch==2.2.1
+RUN python3 -m pip install --no-cache-dir --upgrade pip wheel packaging ninja torch==2.2.1
 RUN pip --verbose wheel flash-attn==${FLASH_ATTN_VERSION} \
     --no-build-isolation --no-deps --no-cache-dir
 
@@ -23,11 +22,9 @@ RUN --mount=type=cache,target=/var/cache/apt --mount=type=cache,target=/var/lib/
       python3 python3-pip curl && \
     rm -rf /var/lib/apt/lists/*
 
-RUN --mount=type=cache,target=/root/.cache/pip \
-    python3 -m pip install --no-cache-dir --upgrade pip wheel
+RUN python3 -m pip install --no-cache-dir --upgrade pip wheel
 
-RUN --mount=type=cache,target=/root/.cache/pip \
-    python3 -m pip install --no-cache-dir vllm==${VERSION}
+RUN python3 -m pip install --no-cache-dir vllm==${VERSION}
 RUN --mount=type=bind,from=flash-attn-builder,src=/usr/src/flash-attention-v2,target=/usr/src/flash-attention-v2 \
     --mount=type=cache,target=/root/.cache/pip \
     pip install /usr/src/flash-attention-v2/*.whl --no-cache-dir
