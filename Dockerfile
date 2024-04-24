@@ -13,7 +13,7 @@ RUN pip --verbose wheel flash-attn==${FLASH_ATTN_VERSION} \
     --no-build-isolation --no-deps --no-cache-dir
 
 FROM nvidia/cuda:12.1.1-runtime-ubuntu22.04
-ARG VERSION=0.4.0.post1
+ARG VERSION=0.4.1
 ENV PORT 8080
 
 RUN --mount=type=cache,target=/var/cache/apt --mount=type=cache,target=/var/lib/apt \
