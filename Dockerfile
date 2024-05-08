@@ -1,5 +1,5 @@
 FROM nvidia/cuda:12.1.1-devel-ubuntu22.04 AS flash-attn-builder
-ARG FLASH_ATTN_VERSION=v2.5.6
+ARG FLASH_ATTN_VERSION=v2.5.8
 ENV FLASH_ATTN_VERSION=${FLASH_ATTN_VERSION}
 
 RUN --mount=type=cache,target=/var/cache/apt --mount=type=cache,target=/var/lib/apt \
@@ -13,7 +13,7 @@ RUN pip --verbose wheel flash-attn==${FLASH_ATTN_VERSION} \
     --no-build-isolation --no-deps --no-cache-dir
 
 FROM nvidia/cuda:12.1.1-runtime-ubuntu22.04
-ARG VERSION=0.4.1
+ARG VERSION=0.4.2
 ENV PORT 8080
 
 RUN --mount=type=cache,target=/var/cache/apt --mount=type=cache,target=/var/lib/apt \
