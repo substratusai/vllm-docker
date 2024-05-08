@@ -36,5 +36,7 @@ RUN --mount=type=bind,from=flash-attn-builder,src=/usr/src/flash-attention-v2,ta
 # or future versions of triton.
 RUN ldconfig /usr/local/cuda-12.1/compat/
 
+COPY chat-templates chat-templates
+
 COPY entrypoint.sh /usr/local/bin/
 CMD [ "entrypoint.sh" ]
