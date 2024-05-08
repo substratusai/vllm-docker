@@ -42,6 +42,7 @@ variables:
 | QUANTIZATION | OPTIONAL, the quantization method. Choices: 'awq', 'squeezellm' |
 | DTYPE | OPTIONAL, the data type for model weights. Needs to be "half" when "awq" is used |
 | MAX_MODEL_LEN | OPTIONAL, model context length. By default this is automatically derived from the model. Needs to be set to something low when using awq |
+| CHAT_TEMPLATE | OPTIONAL, Path to the chat template. The chat-templates directory shows which templates are available out of the box. E.g. chat-templates/mistral.jinja |
 | EXTRA_ARGS | OPTIONAL, Any additional command line arguments to pass along |
 
 Please see the vLLM source code of [arg-utils.py](https://github.com/vllm-project/vllm/blob/main/vllm/engine/arg_utils.py) for more details.
