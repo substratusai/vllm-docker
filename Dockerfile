@@ -1,5 +1,5 @@
 FROM nvidia/cuda:12.1.1-devel-ubuntu22.04 AS flash-attn-builder
-ARG FLASH_ATTN_VERSION=v2.5.6
+ARG FLASH_ATTN_VERSION=v2.5.8
 ENV FLASH_ATTN_VERSION=${FLASH_ATTN_VERSION}
 
 RUN --mount=type=cache,target=/var/cache/apt --mount=type=cache,target=/var/lib/apt \
@@ -8,12 +8,12 @@ RUN --mount=type=cache,target=/var/cache/apt --mount=type=cache,target=/var/lib/
 WORKDIR /usr/src/flash-attention-v2
 
 # Download the wheel or build it if a pre-compiled release doesn't exist
-RUN python3 -m pip install --no-cache-dir --upgrade pip wheel packaging ninja torch==2.2.1
+RUN python3 -m pip install --no-cache-dir --upgrade pip wheel packaging ninja torch==2.3.0
 RUN pip --verbose wheel flash-attn==${FLASH_ATTN_VERSION} \
     --no-build-isolation --no-deps --no-cache-dir
 
 FROM nvidia/cuda:12.1.1-runtime-ubuntu22.04
-ARG VERSION=0.4.1
+ARG VERSION=0.4.2
 ENV PORT 8080
 
 RUN --mount=type=cache,target=/var/cache/apt --mount=type=cache,target=/var/lib/apt \
