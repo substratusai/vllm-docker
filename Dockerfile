@@ -12,7 +12,9 @@ RUN python3 -m pip install --no-cache-dir --upgrade pip wheel packaging ninja to
 RUN pip --verbose wheel flash-attn==${FLASH_ATTN_VERSION} \
     --no-build-isolation --no-deps --no-cache-dir
 
-FROM nvidia/cuda:12.1.1-runtime-ubuntu22.04
+# TODO switch back to using runtime once vllm no longer need NVCC
+# https://github.com/vllm-project/vllm/issues/4666
+FROM nvidia/cuda:12.1.1-devel-ubuntu22.04
 ARG VERSION=0.4.2
 ENV PORT 8080
 
