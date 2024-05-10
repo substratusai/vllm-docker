@@ -2,8 +2,7 @@ FROM nvidia/cuda:12.1.1-devel-ubuntu22.04 AS flash-attn-builder
 ARG FLASH_ATTN_VERSION=v2.5.8
 ENV FLASH_ATTN_VERSION=${FLASH_ATTN_VERSION}
 
-RUN --mount=type=cache,target=/var/cache/apt --mount=type=cache,target=/var/lib/apt \
-    apt-get update -y && apt-get install -y python3-pip git
+RUN apt-get update -y && apt-get install -y python3-pip git
 
 WORKDIR /usr/src/flash-attention-v2
 
@@ -12,12 +11,13 @@ RUN python3 -m pip install --no-cache-dir --upgrade pip wheel packaging ninja to
 RUN pip --verbose wheel flash-attn==${FLASH_ATTN_VERSION} \
     --no-build-isolation --no-deps --no-cache-dir
 
-FROM nvidia/cuda:12.1.1-runtime-ubuntu22.04
+# TODO switch back to using runtime once vllm no longer need NVCC
+# https://github.com/vllm-project/vllm/issues/4666
+FROM nvidia/cuda:12.1.1-devel-ubuntu22.04
 ARG VERSION=0.4.2
 ENV PORT 8080
 
-RUN --mount=type=cache,target=/var/cache/apt --mount=type=cache,target=/var/lib/apt \
-    apt-get update && \
+RUN apt-get update && \
     apt-get -y --no-install-recommends install \
       build-essential python3-dev python3-pip curl && \
     rm -rf /var/lib/apt/lists/*
