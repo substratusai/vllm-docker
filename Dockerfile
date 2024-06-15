@@ -14,7 +14,7 @@ RUN pip --verbose wheel flash-attn==${FLASH_ATTN_VERSION} \
 # TODO switch back to using runtime once vllm no longer need NVCC
 # https://github.com/vllm-project/vllm/issues/4666
 FROM nvidia/cuda:12.1.1-devel-ubuntu22.04
-ARG VERSION=0.5.0
+ARG VERSION=0.5.0.post1
 ENV PORT 8080
 
 RUN apt-get update && \
