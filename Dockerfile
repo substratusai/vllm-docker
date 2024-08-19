@@ -1,4 +1,4 @@
-ARG VERSION=v0.5.3.post1
+ARG VERSION=v0.5.4
 FROM vllm/vllm-openai:${VERSION}
 ENV PORT 8080
 COPY chat-templates /chat-templates
