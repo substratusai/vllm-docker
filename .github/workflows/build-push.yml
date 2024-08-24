@@ -104,6 +104,8 @@ jobs:
         id: meta
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
+          flavor: |
+            suffix: cpu
           images: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
             ${{ env.IMAGE_NAME }}
@@ -116,5 +118,5 @@ jobs:
           context: "https://github.com/vllm-project/vllm.git#v0.5.4:."
           file: Dockerfile.cpu
           push: ${{ github.event_name == 'push' }}
-          tags: ${{ steps.meta.outputs.tags }}-cpu
+          tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
