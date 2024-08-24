@@ -103,6 +103,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           flavor: |
+            latest=false
             suffix=-cpu
           images: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
