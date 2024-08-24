@@ -113,7 +113,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
-          context: https://github.com/vllm-project/vllm.git#v0.5.4:."
+          context: https://github.com/vllm-project/vllm.git#v0.5.4:docker"
           file: Dockerfile.cpu
           push: ${{ github.event_name == 'push' }}
           tags: ${{ steps.meta.outputs.tags }}-cpu
