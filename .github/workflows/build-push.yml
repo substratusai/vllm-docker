@@ -103,7 +103,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           flavor: |
-            suffix=cpu
+            suffix=-cpu
           images: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
             ${{ env.IMAGE_NAME }}
