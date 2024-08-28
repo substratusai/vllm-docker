@@ -28,7 +28,7 @@ FROM cpu-test-1 AS build
 
 WORKDIR /workspace/vllm
 
-COPY requirements-cpu.txt requirements-cpu.txt
+COPY requirements-*.txt .
 RUN pip install -v -r requirements-cpu.txt
 
 COPY ./ ./
