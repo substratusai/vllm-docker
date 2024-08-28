@@ -99,7 +99,6 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Login to docker.io
         if: github.event_name == 'push'
         uses: docker/login-action@v3
@@ -116,10 +115,14 @@ jobs:
           images: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
             ${{ env.IMAGE_NAME }}
+      - name: Clone vLLM at specified tag
+        run: |
+          git clone https://github.com/vllm-project/vllm.git
+          cd vllm && git checkout v0.5.5
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
-          context: "https://github.com/vllm-project/vllm.git#v0.5.5:."
+          context: vllm
           file: Dockerfile.cpu
           platforms: linux/amd64,linux/arm64
           push: ${{ github.event_name == 'push' }}
