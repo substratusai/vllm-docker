@@ -111,7 +111,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
-          context: "https://github.com/vllm-project/vllm.git#v0.6.1:."
+          context: "https://github.com/vllm-project/vllm.git#v0.6.2:."
           file: Dockerfile.cpu
           push: ${{ github.event_name == 'push' }}
           tags: ${{ steps.meta.outputs.tags }}
@@ -154,7 +154,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
-          context: "https://github.com/vllm-project/vllm.git#v0.6.1:."
+          context: "https://github.com/vllm-project/vllm.git#v0.6.2:."
           file: Dockerfile.tpu
           push: ${{ github.event_name == 'push' }}
           tags: ${{ steps.meta.outputs.tags }}
