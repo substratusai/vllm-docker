@@ -2,6 +2,8 @@
 vLLM is a fast and easy-to-use library for LLM inference and serving.
 This container image runs the OpenAI API server of vLLM.
 
+The image is only for TPU and CPU inference. For GPU inference, please use the upstream image from vLLM.
+
 Image URLs:
 
 - `substratusai/vllm` (Docker Hub)
