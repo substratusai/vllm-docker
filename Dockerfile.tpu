@@ -20,7 +20,6 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 RUN git clone https://github.com/vllm-project/vllm.git && cd vllm && git checkout v${VERSION}
 ENV VLLM_TARGET_DEVICE="tpu"
 RUN --mount=type=cache,target=/root/.cache/pip \
-    --mount=type=bind,source=.git,target=.git \
      cd /workspace/vllm && \
     python3 -m pip install \
         cmake>=3.26 ninja packaging setuptools-scm>=8 wheel jinja2 \
