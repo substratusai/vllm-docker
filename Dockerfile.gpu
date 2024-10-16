@@ -1,11 +1,4 @@
-ARG CUDA_VERSION=12.4.1
-FROM nvidia/cuda:${CUDA_VERSION}-cudnn-runtime-ubuntu22.04
-ENV PORT=8000
-ENV VERSION=0.6.3
-RUN apt-get update -y && apt-get install -y python3 python3-pip \
-    && rm -rf /var/lib/apt/lists/*
-
-RUN pip3 --no-cache-dir install -i https://flashinfer.ai/whl/cu124/torch2.4/ flashinfer
-RUN pip3 --no-cache-dir install vllm==${VERSION}
-
-ENTRYPOINT ["python3", "-m", "vllm.entrypoints.openai.api_server"]
+# Please use upstream Docker image instead of this one.
+# This Dockerfile is deprecated.
+ARG VERSION=v0.6.3
+FROM vllm/vllm-openai:${VERSION}
