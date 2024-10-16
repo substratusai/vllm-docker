@@ -1,6 +1,7 @@
 # This vLLM Dockerfile is used to construct image that can build and run vLLM on x86 CPU platform.
 ARG VERSION=0.6.3
 FROM ubuntu:22.04 AS cpu-test-1
+ARG VERSION
 
 ENV CCACHE_DIR=/root/.cache/ccache
 
@@ -52,8 +53,6 @@ FROM cpu-test-1 AS build
 WORKDIR /workspace/vllm
 
 RUN --mount=type=cache,target=/root/.cache/pip \
-    --mount=type=bind,src=requirements-common.txt,target=requirements-common.txt \
-    --mount=type=bind,src=requirements-cpu.txt,target=requirements-cpu.txt \
     pip install -v -r requirements-cpu.txt
 
 COPY ./ ./
