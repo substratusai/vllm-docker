@@ -1,4 +1,0 @@
-# Please use upstream Docker image instead of this one.
-# This Dockerfile is deprecated.
-ARG VERSION=v0.6.3
-FROM vllm/vllm-openai:${VERSION}

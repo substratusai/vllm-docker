@@ -7,6 +7,17 @@ Image URLs:
 - `substratusai/vllm` (Docker Hub)
 - `ghcr.io/substratusai/vllm` (GitHub Container Registry)
 
+This image only publishes the TPU and CPU images for vLLM:
+- `substratusai/vllm:main-tpu`
+- `substratusai/vllm:main-cpu`
+
+There are also tags available such as `v0.6.3-tpu` and `v0.6.3-cpu`.
+
+Please use the upstream GPU image from vLLM directly:
+```
+vllm/vllm-openai:latest
+```
+
 Support the project by adding a star! ❤️
 
 Join us on Discord:  
