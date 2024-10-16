@@ -70,6 +70,7 @@ jobs:
         uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
         with:
           context: .
+          file: Dockerfile.gpu
           push: ${{ github.event_name == 'push' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -111,7 +112,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
-          context: "https://github.com/vllm-project/vllm.git#v0.6.2:."
+          context: .
           file: Dockerfile.cpu
           push: ${{ github.event_name == 'push' }}
           tags: ${{ steps.meta.outputs.tags }}
@@ -154,7 +155,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
-          context: "https://github.com/vllm-project/vllm.git#v0.6.2:."
+          context: .
           file: Dockerfile.tpu
           push: ${{ github.event_name == 'push' }}
           tags: ${{ steps.meta.outputs.tags }}
