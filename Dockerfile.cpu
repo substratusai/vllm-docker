@@ -1,5 +1,5 @@
 # This vLLM Dockerfile is used to construct image that can build and run vLLM on x86 CPU platform.
-ARG VERSION=0.6.3
+ARG VERSION=0.6.3.post1
 FROM ubuntu:22.04 AS cpu-test-1
 ARG VERSION
 
