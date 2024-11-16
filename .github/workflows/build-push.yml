@@ -64,18 +64,8 @@ jobs:
           cache-to: type=gha,mode=max
       - name: Test Docker image using curl
         run: |
-          FIRST_TAG=$(echo '${{ steps.meta.outputs.tags }}' | head -n 1)
-          docker run --rm -d --name vllm -p 8000:8000 ${FIRST_TAG} \
-            --model facebook/opt-125m
-          docker logs vllm &
-          curl http://localhost:8000/v1/completions \
-            -H "Content-Type: application/json" \
-            -d '{
-            "model": "facebook/opt-125m",
-            "prompt": "San Francisco is a",
-            "max_tokens": 7,
-            "temperature": 0
-          }'
+          export IMAGE_TAG=$(echo '${{ steps.meta.outputs.tags }}' | head -n 1)
+          bash test-image.sh
       - name: Optionally push Docker image
         if: github.event_name == 'push'
         uses: docker/build-push-action@v6
