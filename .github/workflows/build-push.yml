@@ -51,17 +51,40 @@ jobs:
           images: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
             ${{ env.IMAGE_NAME }}
-      - name: Build and push Docker image
+      - name: Build Docker image
         uses: docker/build-push-action@v6
         with:
           context: .
           file: Dockerfile.cpu
-          push: ${{ github.event_name == 'push' }}
+          load: true
+          push: false
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
+      - name: Test Docker image using curl
+        run: |
+          docker run --rm -d -p 8000:8000 ${{ steps.meta.outputs.tags }} \
+            --model facebook/opt-125m
+          curl http://localhost:8000/v1/completions \
+            -H "Content-Type: application/json" \
+            -d '{
+            "model": "facebook/opt-125m",
+            "prompt": "San Francisco is a",
+            "max_tokens": 7,
+            "temperature": 0
+          }'
+      - name: Optionally push Docker image
+        if: github.event_name == 'push'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile.cpu
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
   tpu:
     runs-on: ubuntu-latest
     # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
