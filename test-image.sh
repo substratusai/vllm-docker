@@ -2,8 +2,8 @@
 
 set -xe
 
-IMAGE_TAG=vllm/vllm-openai:latest
-MODEL_NAME=facebook/opt-125m
+IMAGE_TAG="${IMAGE_TAG:-vllm/vllm-openai:latest}"
+MODEL_NAME="${MODEL_NAME:-facebook/opt-125m}"
 
 docker run --rm -d --name vllm -p 8000:8000 ${IMAGE_TAG} \
   --model ${MODEL_NAME} ${ARGS}
@@ -37,4 +37,3 @@ if [ $CURL_EXIT_CODE -ne 0 ]; then
   docker logs vllm
 fi
 exit $CURL_EXIT_CODE
-
