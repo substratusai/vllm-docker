@@ -64,7 +64,7 @@ jobs:
           cache-to: type=gha,mode=max
       - name: Test Docker image using curl
         run: |
-          IMAGE_TAG=$(echo '${{ steps.meta.outputs.tags }}' | head -n 1)
+          IMAGE_TAG=$(echo '${{ steps.meta.outputs.tags }}' | head -n 1) \
           bash test-image.sh
       - name: Optionally push Docker image
         if: github.event_name == 'push'
