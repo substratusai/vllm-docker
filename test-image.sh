@@ -22,7 +22,7 @@ while ! curl -sf http://localhost:8000/v1/models; do
 done
 echo "Container is ready."
 
-curl -v http://localhost:8000/v1/completions \
+curl -v --fail-with-body --show-error http://localhost:8000/v1/completions \
   -H "Content-Type: application/json" \
   -d '{
   "model": "facebook/opt-125m",
