@@ -5,8 +5,12 @@ set -x
 IMAGE_TAG="${IMAGE_TAG:-vllm/vllm-openai:latest}"
 MODEL_NAME="${MODEL_NAME:-facebook/opt-125m}"
 
-docker run --rm -d --name vllm -p 8000:8000 ${IMAGE_TAG} \
-  --model ${MODEL_NAME} ${ARGS}
+docker run --rm -d --name vllm -p 8000:8000 \
+  -e VLLM_WORKER_MULTIPROC_METHOD=spawn \
+  ${IMAGE_TAG} \
+  --model ${MODEL_NAME} \
+  --disable-frontend-multiprocessing \
+  ${ARGS}
 
 # Wait for up to 120 seconds for the Docker container to be ready
 echo "Waiting for the container to be ready..."
