@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -xe
+set -x
 
 IMAGE_TAG="${IMAGE_TAG:-vllm/vllm-openai:latest}"
 MODEL_NAME="${MODEL_NAME:-facebook/opt-125m}"
