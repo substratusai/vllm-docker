@@ -31,6 +31,8 @@ WORKDIR /workspace/vllm
 
 # Fix needed for oneDNN, see: https://github.com/vllm-project/vllm/pull/9344#issuecomment-2480921672
 RUN sed -i 's/ONEDNN_ENABLE_JIT_PROFILING "OFF"/ONEDNN_ENABLE_JIT_PROFILING "ON"/' cmake/cpu_extension.cmake
+RUN sed -i 's/ONEDNN_ENABLE_ITT_TASKS "OFF"/ONEDNN_ENABLE_ITT_TASKS "ON"/' cmake/cpu_extension.cmake
+RUN cat cmake/cpu_extension.cmake
 
 ARG PIP_EXTRA_INDEX_URL="https://download.pytorch.org/whl/cpu"
 ENV PIP_EXTRA_INDEX_URL=${PIP_EXTRA_INDEX_URL}
