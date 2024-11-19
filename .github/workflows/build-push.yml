@@ -18,7 +18,7 @@ env:
 jobs:
   cpu:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 120
     # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
     permissions:
       contents: read
