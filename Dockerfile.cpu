@@ -31,7 +31,6 @@ RUN apt-get update -y \
     && echo 'ulimit -c 0' >> ~/.bashrc
 
 WORKDIR /workspace/vllm
-COPY cmake/cpu_extension.cmake .
 RUN sed -i 's/if (AVX512_FOUND AND NOT AVX512_DISABLED)/if (AVX512_FOUND OR AVX2_FOUND)/' cmake/cpu_extension.cmake \
     && cat cmake/cpu_extension.cmake
 
