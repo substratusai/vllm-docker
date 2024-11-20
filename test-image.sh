@@ -5,7 +5,7 @@ set -x
 IMAGE_TAG="${IMAGE_TAG:-vllm/vllm-openai:latest}"
 MODEL_NAME="${MODEL_NAME:-facebook/opt-125m}"
 
-docker run --rm -d --name vllm -p 8000:8000 \
+docker run -d --name vllm -p 8000:8000 \
   -e VLLM_WORKER_MULTIPROC_METHOD=spawn \
   ${IMAGE_TAG} \
   --model ${MODEL_NAME} \
