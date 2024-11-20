@@ -1,80 +1,53 @@
-# This vLLM Dockerfile is used to construct image that can build and run vLLM on x86 CPU platform.
+# Base image
+FROM ubuntu:22.04 AS base
 ARG VERSION=0.6.4.post1
-FROM ubuntu:22.04 AS cpu-test-1
-ARG VERSION
-
 ENV CCACHE_DIR=/root/.cache/ccache
-
 ENV CMAKE_CXX_COMPILER_LAUNCHER=ccache
-
-RUN --mount=type=cache,target=/var/cache/apt \
-    apt-get update -y \
-    && apt-get install -y curl ccache git wget vim numactl gcc-12 g++-12 python3 python3-pip libtcmalloc-minimal4 libnuma-dev \
-    && apt-get install -y ffmpeg libsm6 libxext6 libgl1 \
-    && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 10 --slave /usr/bin/g++ g++ /usr/bin/g++-12
-
-# https://intel.github.io/intel-extension-for-pytorch/cpu/latest/tutorials/performance_tuning/tuning_guide.html
-# intel-openmp provides additional performance improvement vs. openmp
-# tcmalloc provides better memory allocation efficiency, e.g, holding memory in caches to speed up access of commonly-used objects.
-RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install intel-openmp
-
 ENV LD_PRELOAD="/usr/lib/x86_64-linux-gnu/libtcmalloc_minimal.so.4:/usr/local/lib/libiomp5.so"
 
-RUN echo 'ulimit -c 0' >> ~/.bashrc
 
-RUN pip install intel_extension_for_pytorch==2.5.0
+# Python environment setup
+FROM base AS python-env
+RUN python3 -m pip install --upgrade pip && \
+    pip install virtualenv && \
+    virtualenv /opt/vllm-venv
 
+# Activate virtual environment in Docker image
+ENV PATH="/opt/vllm-venv/bin:$PATH"
+
+# Code preparation
+FROM python-env AS code-prep
 WORKDIR /workspace
 RUN git clone https://github.com/vllm-project/vllm.git && cd vllm && git checkout v${VERSION}
-WORKDIR /workspace/vllm
 
-# Fix needed for oneDNN, see: https://github.com/vllm-project/vllm/pull/9344#issuecomment-2480921672
-# RUN sed -i 's/ONEDNN_ENABLE_JIT_PROFILING "OFF"/ONEDNN_ENABLE_JIT_PROFILING "ON"/' cmake/cpu_extension.cmake
-# RUN sed -i 's/ONEDNN_ENABLE_ITT_TASKS "OFF"/ONEDNN_ENABLE_ITT_TASKS "ON"/' cmake/cpu_extension.cmake
-# RUN sed -i 's/ONEDNN_ENABLE_MAX_CPU_ISA "OFF"/ONEDNN_ENABLE_MAX_CPU_ISA "ON"/' cmake/cpu_extension.cmake
-# RUN sed -i 's/ONEDNN_ENABLE_CPU_ISA_HINTS "OFF"/ONEDNN_ENABLE_CPU_ISA_HINTS "ON"/' cmake/cpu_extension.cmake
-RUN sed -i 's/if (AVX512_FOUND AND NOT AVX512_DISABLED)/if (AVX512_FOUND OR AVX2_FOUND)/' cmake/cpu_extension.cmake
-RUN cat cmake/cpu_extension.cmake
+# Code building stage
+FROM code-prep AS builder
+# Install build dependencies and clean up in one layer to reduce image size
+RUN apt-get update -y \
+    && apt-get install -y curl ccache git wget vim numactl gcc-12 g++-12 python3 python3-pip libtcmalloc-minimal4 libnuma-dev ffmpeg libsm6 libxext6 libgl1 \
+    && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 10 --slave /usr/bin/g++ g++ /usr/bin/g++-12 \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* \
+    && echo 'ulimit -c 0' >> ~/.bashrc
+
+WORKDIR /workspace/vllm
+COPY cmake/cpu_extension.cmake .
+RUN sed -i 's/if (AVX512_FOUND AND NOT AVX512_DISABLED)/if (AVX512_FOUND OR AVX2_FOUND)/' cmake/cpu_extension.cmake \
+    && cat cmake/cpu_extension.cmake
 
 ARG PIP_EXTRA_INDEX_URL="https://download.pytorch.org/whl/cpu"
 ENV PIP_EXTRA_INDEX_URL=${PIP_EXTRA_INDEX_URL}
-RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install --upgrade pip && \
-    pip install -r requirements-build.txt
+RUN pip install -r requirements-build.txt \
+    && pip install -v -r requirements-cpu.txt \
+    && VLLM_TARGET_DEVICE=cpu python3 setup.py bdist_wheel \
+    && pip install dist/*.whl
 
-# install oneDNN
-# RUN git clone --depth 1 -b v3.6.1 https://github.com/oneapi-src/oneDNN.git
-#
-# RUN --mount=type=cache,target=/root/.cache/ccache \
-#     cmake -B ./oneDNN/build -S ./oneDNN -G Ninja -DONEDNN_LIBRARY_TYPE=STATIC \
-#     -DONEDNN_BUILD_DOC=OFF \
-#     -DONEDNN_BUILD_EXAMPLES=OFF \
-#     -DONEDNN_BUILD_TESTS=OFF \
-#     -DONEDNN_BUILD_GRAPH=OFF \
-#     -DONEDNN_ENABLE_WORKLOAD=INFERENCE \
-#     -DONEDNN_ENABLE_PRIMITIVE=MATMUL && \
-#     cmake --build ./oneDNN/build --target install --config Release
+# Final image
+FROM base AS final
+COPY --from=builder /opt/vllm-venv /opt/vllm-venv
 
-FROM cpu-test-1 AS build
-WORKDIR /workspace/vllm
+# Activate virtual environment in Docker image
+ENV PATH="/opt/vllm-venv/bin:$PATH"
 
-RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install -v -r requirements-cpu.txt
-
-# Support for building with non-AVX512 vLLM: docker build --build-arg VLLM_CPU_DISABLE_AVX512="true" ...
-ARG VLLM_CPU_DISABLE_AVX512
-ENV VLLM_CPU_DISABLE_AVX512=${VLLM_CPU_DISABLE_AVX512}
-
-
-RUN --mount=type=cache,target=/root/.cache/pip \
-    --mount=type=cache,target=/root/.cache/ccache \
-    VLLM_TARGET_DEVICE=cpu python3 setup.py bdist_wheel && \
-    pip install dist/*.whl && \
-    rm -rf dist
-
-WORKDIR /workspace/
-
-RUN ln -s /workspace/vllm/tests && ln -s /workspace/vllm/examples && ln -s /workspace/vllm/benchmarks
-
+WORKDIR /workspace
 ENTRYPOINT ["python3", "-m", "vllm.entrypoints.openai.api_server"]
