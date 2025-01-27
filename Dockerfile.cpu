@@ -1,10 +1,7 @@
-# This vLLM Dockerfile is used to construct image that can build and run vLLM on x86 CPU platform.
+# Base image
+FROM ubuntu:22.04 AS base
 ARG VERSION=0.6.4.post1
-FROM ubuntu:22.04 AS cpu-test-1
-ARG VERSION
-
 ENV CCACHE_DIR=/root/.cache/ccache
-
 ENV CMAKE_CXX_COMPILER_LAUNCHER=ccache
 
 RUN --mount=type=cache,target=/var/cache/apt \
@@ -13,46 +10,44 @@ RUN --mount=type=cache,target=/var/cache/apt \
     && apt-get install -y ffmpeg libsm6 libxext6 libgl1 \
     && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 10 --slave /usr/bin/g++ g++ /usr/bin/g++-12
 
-# https://intel.github.io/intel-extension-for-pytorch/cpu/latest/tutorials/performance_tuning/tuning_guide.html
-# intel-openmp provides additional performance improvement vs. openmp
-# tcmalloc provides better memory allocation efficiency, e.g, holding memory in caches to speed up access of commonly-used objects.
-RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install intel-openmp
+ENV LD_PRELOAD="/usr/lib/x86_64-linux-gnu/libtcmalloc_minimal.so.4:/opt/vllm-venv/lib/libiomp5.so"
 
-ENV LD_PRELOAD="/usr/lib/x86_64-linux-gnu/libtcmalloc_minimal.so.4:/usr/local/lib/libiomp5.so"
+# Python environment setup
+FROM base AS python-env
+RUN python3 -m pip install --upgrade pip && \
+    pip install virtualenv && \
+    virtualenv /opt/vllm-venv
 
-RUN echo 'ulimit -c 0' >> ~/.bashrc
+# Activate virtual environment in Docker image
+ENV PATH="/opt/vllm-venv/bin:$PATH"
 
-RUN pip install intel_extension_for_pytorch==2.5.0
-
+# Code preparation
+FROM python-env AS code-prep
 WORKDIR /workspace
 RUN git clone https://github.com/vllm-project/vllm.git && cd vllm && git checkout v${VERSION}
+
+# Code building stage
+FROM code-prep AS builder
+
+
 WORKDIR /workspace/vllm
+RUN sed -i 's/if (AVX512_FOUND AND NOT AVX512_DISABLED)/if (AVX512_FOUND OR AVX2_FOUND)/' cmake/cpu_extension.cmake \
+    && cat cmake/cpu_extension.cmake
 
 ARG PIP_EXTRA_INDEX_URL="https://download.pytorch.org/whl/cpu"
 ENV PIP_EXTRA_INDEX_URL=${PIP_EXTRA_INDEX_URL}
-RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install --upgrade pip && \
-    pip install -r requirements-build.txt
+RUN pip install -r requirements-build.txt \
+    && pip install -v -r requirements-cpu.txt \
+    && pip install intel-openmp \
+    && VLLM_TARGET_DEVICE=cpu python3 setup.py bdist_wheel \
+    && pip install dist/*.whl
 
-FROM cpu-test-1 AS build
-WORKDIR /workspace/vllm
+# Final image
+FROM base AS final
+COPY --from=builder /opt/vllm-venv /opt/vllm-venv
 
-RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install -v -r requirements-cpu.txt
+# Activate virtual environment in Docker image
+ENV PATH="/opt/vllm-venv/bin:$PATH"
 
-# Support for building with non-AVX512 vLLM: docker build --build-arg VLLM_CPU_DISABLE_AVX512="true" ...
-ARG VLLM_CPU_DISABLE_AVX512
-ENV VLLM_CPU_DISABLE_AVX512=${VLLM_CPU_DISABLE_AVX512}
-
-RUN --mount=type=cache,target=/root/.cache/pip \
-    --mount=type=cache,target=/root/.cache/ccache \
-    VLLM_TARGET_DEVICE=cpu python3 setup.py bdist_wheel && \
-    pip install dist/*.whl && \
-    rm -rf dist
-
-WORKDIR /workspace/
-
-RUN ln -s /workspace/vllm/tests && ln -s /workspace/vllm/examples && ln -s /workspace/vllm/benchmarks
-
+WORKDIR /workspace
 ENTRYPOINT ["python3", "-m", "vllm.entrypoints.openai.api_server"]
