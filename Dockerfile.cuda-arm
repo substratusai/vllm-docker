@@ -86,12 +86,16 @@ ARG FLASHINFER_ENABLE_AOT=1
 ARG FLASHINFER_REF=v0.2.2.post1
 ARG FLASHINFER_BUILD_SUFFIX=cu126
 ENV FLASHINFER_LOCAL_VERSION=${FLASHINFER_BUILD_SUFFIX:-}
+# Flashinfer only supports sm75+, removing 7.0 from arch list
+ENV TORCH_CUDA_ARCH_LIST='7.5 8.0 8.6 8.9 9.0+PTX'
 RUN git clone https://github.com/flashinfer-ai/flashinfer.git
 RUN cd flashinfer && \
     git checkout ${FLASHINFER_REF} && \
     git submodule sync && \
     git submodule update --init --recursive -j 8 && \
     uv build --wheel --no-build-isolation -o /wheels
+# Restore original CUDA arch list for subsequent stages
+ENV TORCH_CUDA_ARCH_LIST=${torch_cuda_arch_list}
 
 FROM build-base AS build-vllm
 ARG VLLM_REF=v0.8.2
