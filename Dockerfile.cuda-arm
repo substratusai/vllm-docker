@@ -1,4 +1,5 @@
 # Source: https://github.com/LambdaLabsML/vllm-builder
+# Had to switch to 12.4.1 because 12.6.3 was causing Segmentation fault when vLLM builds flash-attn
 ARG CUDA_VERSION=12.4.1
 ARG IMAGE_DISTRO=ubuntu22.04
 ARG PYTHON_VERSION=3.12
@@ -57,16 +58,18 @@ RUN mkdir /wheels
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv pip install -U build cmake ninja pybind11 setuptools wheel
 
-# FROM build-base AS build-triton
-# ARG TRITON_REF=release/3.2.x
-# ARG TRITON_BUILD_SUFFIX=+cu126
-# ENV TRITON_WHEEL_VERSION_SUFFIX=${TRITON_BUILD_SUFFIX:-}
-# RUN git clone https://github.com/triton-lang/triton.git
-# RUN cd triton && \
-#     git checkout ${TRITON_REF} && \
-#     git submodule sync && \
-#     git submodule update --init --recursive -j 8 && \
-#     uv build python --wheel --no-build-isolation -o /wheels
+FROM build-base AS build-triton
+ARG TRITON_REF=release/3.2.x
+ARG TRITON_BUILD_SUFFIX=+cu126
+ENV TRITON_WHEEL_VERSION_SUFFIX=${TRITON_BUILD_SUFFIX:-}
+RUN git clone https://github.com/triton-lang/triton.git
+RUN cd triton && \
+    git checkout ${TRITON_REF} && \
+    git submodule sync && \
+    git submodule update --init --recursive -j 8 && \
+    # Unclear why this is needed, makes no sense, but without it kept on hitting Connection timeout downloading the tar
+    curl -O https://anaconda.org/nvidia/cuda-nvcc/12.4.99/download/linux-aarch64/cuda-nvcc-12.4.99-0.tar.bz2 && \
+    uv build python --wheel --no-build-isolation -o /wheels
 
 FROM build-base AS build-xformers
 ARG XFORMERS_REF=v0.0.29.post2
@@ -111,13 +114,13 @@ RUN cd vllm && \
 
 FROM base AS vllm-openai
 COPY --from=build-flashinfer /wheels/* wheels/
-# COPY --from=build-triton /wheels/* wheels/
+COPY --from=build-triton /wheels/* wheels/
 COPY --from=build-vllm /wheels/* wheels/
 COPY --from=build-xformers /wheels/* wheels/
 
 # Install triton using upstream wheel
-RUN --mount=type=cache,target=/root/.cache/uv \
-    uv pip install --index-url https://download.pytorch.org/whl/nightly/cu128 --pre pytorch_triton==3.3.0+gitab727c40;
+# RUN --mount=type=cache,target=/root/.cache/uv \
+#     uv pip install --index-url https://download.pytorch.org/whl/nightly/cu128 --pre pytorch_triton==3.3.0+gitab727c40;
 
 # Install and cleanup wheels
 RUN --mount=type=cache,target=/root/.cache/uv \
